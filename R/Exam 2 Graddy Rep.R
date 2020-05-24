@@ -1,3 +1,8 @@
+WORK.DIR = "C:/Users/Owner/Desktop/Exam-2-Empirical"
+
+# set working directory
+setwd(WORK.DIR)
+
 library(AER)
 library(haven)
 library(tidyverse)
@@ -17,19 +22,43 @@ fish <- read_data("fish.dta")
 
 attach(fish)
 
-ln_q <- log(quantity)
-ln_p <- log(price)
-day_fe <- cbind(mon, tues, wed, thurs)
-instrument1 <- wave2
-instrument2 <- speed3
+fish$ln_q <- log(quantity)
+fish$ln_p <- log(price)
+fish$day_fe <- cbind(mon, tues, wed, thurs)
+fish$instrument1 <- wave2
+fish$instrument2 <- speed3
 
 #Part b - OLS
 ols_reg <- lm(ln_q ~ ln_p + day_fe)
 summary(ols_reg)
 
-#2SLS
+#Part c - 2SLS
 iv_reg_wave = ivreg(ln_q ~ ln_p + day_fe | day_fe + instrument1)
 summary(iv_reg_wave)
 
 iv_reg_wind = ivreg(ln_q ~ ln_p + day_fe | day_fe + instrument2)
 summary(iv_reg_wind)
+
+
+library(sjPlot)
+library(sjmisc)
+library(sjlabelled)
+
+
+combined_table = tab_model(ols_reg, iv_reg_wave, iv_reg_wind, dv.labels = c("OLS", "Wave as IV", "Wind as IV"), title = "ln of Quantity", show.r2 = FALSE, show.fstat = TRUE, show.p = FALSE, p.style = "stars", show.intercept = FALSE, show.ci = FALSE, show.se = TRUE, collapse.se = TRUE, pred.labels = c("ln of Price", "Monday FE", "Tuesday FE", "Wednesday FE", "Thursday FE"))
+combined_table
+
+tab_model(ols_reg, iv_reg_wave, iv_reg_wind, dv.labels = c("OLS", "Wave as IV", "Wind as IV"), file = "Tables/IVCoef.rtf", title = "ln of Quantity", show.r2 = FALSE, show.fstat = TRUE, show.p = FALSE, p.style = "stars", show.intercept = FALSE, show.ci = FALSE, show.se = TRUE, collapse.se = TRUE, pred.labels = c("ln of Price", "Monday FE", "Tuesday FE", "Wednesday FE", "Thursday FE"))
+
+
+#part d - first stages
+wave_first_stage = lm(ln_p ~ instrument1)
+summary(wave_first_stage)
+
+wind_first_stage = lm(ln_p ~ instrument2)
+summary(wind_first_stage)
+
+
+F_ins_1 = linearHypothesis(wave_first_stage,  c("instrument1 = 0"))
+F_ins_2 = linearHypothesis(wind_first_stage,  c("instrument2 = 0"))
+
