@@ -4,28 +4,32 @@ library(tidyverse)
 
 read_data <- function(df)
 {
-  full_path <- paste("https://raw.github.com/scunning1975/mixtape/master/", 
+  full_path <- paste("https://storage.googleapis.com/causal-inference-mixtape.appspot.com/", 
                      df, sep = "")
   df <- read_dta(full_path)
   return(df)
 }
 
-card <- read_data("card.dta")
+fish <- read_data("fish.dta")
 
 #Define variable 
 #(Y1 = Dependent Variable, Y2 = endogenous variable, X1 = exogenous variable, X2 = Instrument)
 
-attach(card)
+attach(fish)
 
-Y1 <- lwage
-Y2 <- educ
-X1 <- cbind(exper, black, south, married, smsa)
-X2 <- nearc4
+ln_q <- log(quantity)
+ln_p <- log(price)
+day_fe <- cbind(mon, tues, wed, thurs)
+instrument1 <- wave2
+instrument2 <- speed3
 
-#OLS
-ols_reg <- lm(Y1 ~ Y2 + X1)
+#Part b - OLS
+ols_reg <- lm(ln_q ~ ln_p + day_fe)
 summary(ols_reg)
 
 #2SLS
-iv_reg = ivreg(Y1 ~ Y2 + X1 | X1 + X2)
-summary(iv_reg)
+iv_reg_wave = ivreg(ln_q ~ ln_p + day_fe | day_fe + instrument1)
+summary(iv_reg_wave)
+
+iv_reg_wind = ivreg(ln_q ~ ln_p + day_fe | day_fe + instrument2)
+summary(iv_reg_wind)
