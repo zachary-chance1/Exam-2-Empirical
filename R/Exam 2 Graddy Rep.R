@@ -1,3 +1,11 @@
+################################################################
+#name: Exam 2 Graddy Rep.R
+#author: zachary chance (baylor university)
+#description: completes exam 2 and performs analysis
+#             on the Fulmon Fish market data set.
+#             Also produces IV tables for said data
+#date: may 24, 2020
+#################################################################
 WORK.DIR = "C:/Users/Owner/Desktop/Exam-2-Empirical"
 
 # set working directory
