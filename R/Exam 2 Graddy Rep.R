@@ -48,6 +48,7 @@ library(sjlabelled)
 combined_table = tab_model(ols_reg, iv_reg_wave, iv_reg_wind, dv.labels = c("OLS", "Wave as IV", "Wind as IV"), title = "ln of Quantity", show.r2 = FALSE, show.fstat = TRUE, show.p = FALSE, p.style = "stars", show.intercept = FALSE, show.ci = FALSE, show.se = TRUE, collapse.se = TRUE, pred.labels = c("ln of Price", "Monday FE", "Tuesday FE", "Wednesday FE", "Thursday FE"))
 combined_table
 
+
 tab_model(ols_reg, iv_reg_wave, iv_reg_wind, dv.labels = c("OLS", "Wave as IV", "Wind as IV"), file = "Tables/IVCoef.rtf", title = "ln of Quantity", show.r2 = FALSE, show.fstat = TRUE, show.p = FALSE, p.style = "stars", show.intercept = FALSE, show.ci = FALSE, show.se = TRUE, collapse.se = TRUE, pred.labels = c("ln of Price", "Monday FE", "Tuesday FE", "Wednesday FE", "Thursday FE"))
 
 
@@ -62,3 +63,22 @@ summary(wind_first_stage)
 F_ins_1 = linearHypothesis(wave_first_stage,  c("instrument1 = 0"))
 F_ins_2 = linearHypothesis(wind_first_stage,  c("instrument2 = 0"))
 
+
+library(grid)
+library(gridExtra)
+library(plotrix)
+F_Addendum[1,] = data.frame(cbind(wave_first_stage$coefficients[[2]], wind_first_stage$coefficients[[2]]))
+F_Addendum[2,1] = sqrt(diag(vcov(wave_first_stage)))[2]
+F_Addendum[2,2] = sqrt(diag(vcov(wind_first_stage)))[2]
+F_Addendum[3,1] = F_ins_1$F[[2]]
+F_Addendum[3,2] = F_ins_2$F[[2]]
+colnames(F_Addendum) = c("Wave as IV", "Wind as IV")
+rownames(F_Addendum) = c("Coefficient of IV", "SE of IV", "F Statistic")
+
+#Regrettably, I couldn't find a way to tack the F stats and coefficients for the first stage regressions, so it is in a separate file 
+
+library(rtf)
+rtffile <- RTF("Tables/IVCoef2.rtf")
+addText.RTF(this = rtffile, "Results of the First Stage Regression", bold = TRUE)
+addTable.RTF(this = rtffile, dat = F_Addendum, row.names = TRUE)
+done(rtffile)
