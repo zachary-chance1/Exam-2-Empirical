@@ -28,13 +28,15 @@ fish <- read_data("fish.dta")
 #Define variable 
 #(Y1 = Dependent Variable, Y2 = endogenous variable, X1 = exogenous variable, X2 = Instrument)
 
-attach(fish)
+
 
 fish$ln_q <- log(quantity)
 fish$ln_p <- log(price)
 fish$day_fe <- cbind(mon, tues, wed, thurs)
 fish$instrument1 <- wave2
 fish$instrument2 <- speed3
+
+attach(fish)
 
 #Part b - OLS
 ols_reg <- lm(ln_q ~ ln_p + day_fe)
@@ -75,7 +77,7 @@ F_ins_2 = linearHypothesis(wind_first_stage,  c("instrument2 = 0"))
 library(grid)
 library(gridExtra)
 library(plotrix)
-F_Addendum[1,] = data.frame(cbind(wave_first_stage$coefficients[[2]], wind_first_stage$coefficients[[2]]))
+F_Addendum = data.frame(cbind(wave_first_stage$coefficients[[2]], wind_first_stage$coefficients[[2]]))
 F_Addendum[2,1] = sqrt(diag(vcov(wave_first_stage)))[2]
 F_Addendum[2,2] = sqrt(diag(vcov(wind_first_stage)))[2]
 F_Addendum[3,1] = F_ins_1$F[[2]]
